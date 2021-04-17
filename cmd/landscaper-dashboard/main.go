@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/schrodit/landscaper-dashboard/cmd/landscaper-dashboard/app"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
+
+	"github.com/schrodit/landscaper-dashboard/cmd/landscaper-dashboard/app"
 )
 
 func main() {

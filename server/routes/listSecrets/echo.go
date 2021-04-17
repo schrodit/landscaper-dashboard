@@ -7,9 +7,10 @@ package lsRouter
 import (
 	"context"
 
-	"github.com/schrodit/landscaper-dashboard/server/routes"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/schrodit/landscaper-dashboard/server/routes"
 )
 
 type LSRouter struct {

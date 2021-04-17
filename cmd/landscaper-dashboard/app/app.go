@@ -10,14 +10,17 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/schrodit/landscaper-dashboard/server/routes"
-	"github.com/schrodit/landscaper-dashboard/server/routes/echo"
-	lsRouter "github.com/schrodit/landscaper-dashboard/server/routes/listSecrets"
 	"github.com/spf13/cobra"
 	"gopkg.in/olahol/melody.v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+
+	"github.com/schrodit/landscaper-dashboard/server/routes"
+	"github.com/schrodit/landscaper-dashboard/server/routes/components"
+	"github.com/schrodit/landscaper-dashboard/server/routes/echo"
+	lsRouter "github.com/schrodit/landscaper-dashboard/server/routes/listSecrets"
 
 	"github.com/gardener/landscaper/apis/core/install"
 )
@@ -56,6 +59,10 @@ func (o *Options) Run(ctx context.Context) error {
 	}
 	m := melody.New() // websocket middleware
 
+	if len(o.Config.FrontendDir) != 0 {
+		server.Use(static.Serve("/", static.LocalFile(o.Config.FrontendDir, false)))
+	}
+
 	server.GET("/ws", func(c *gin.Context) {
 		if err := m.HandleRequest(c.Writer, c.Request); err != nil {
 			o.Log.Error(err, "unable to handle websocket request")
@@ -68,6 +75,7 @@ func (o *Options) Run(ctx context.Context) error {
 	}
 	router.AddCommonPath("echo", echo.Route)
 	router.AddCommonPath("listSecrets", lsRouter.NewLsRouter(mgr.GetClient()).ListSecrets)
+	router.AddCommonPath("listComponents", components.ListComponents)
 	go func() {
 		if err := mgr.Start(ctx); err != nil {
 			o.Log.Error(err, "unable to start controller manager")

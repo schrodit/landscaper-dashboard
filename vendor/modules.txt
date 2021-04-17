@@ -8,7 +8,8 @@ github.com/davecgh/go-spew/spew
 github.com/evanphx/json-patch
 # github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
-# github.com/gardener/component-spec/bindings-go v0.0.32
+# github.com/gardener/component-spec/bindings-go v0.0.36
+## explicit
 github.com/gardener/component-spec/bindings-go/apis/v2
 github.com/gardener/component-spec/bindings-go/utils/selector
 # github.com/gardener/landscaper/apis v0.7.0
@@ -20,6 +21,9 @@ github.com/gardener/landscaper/apis/core/v1alpha1
 github.com/ghodss/yaml
 # github.com/gin-contrib/sse v0.1.0
 github.com/gin-contrib/sse
+# github.com/gin-contrib/static v0.0.1
+## explicit
+github.com/gin-contrib/static
 # github.com/gin-gonic/gin v1.7.1
 ## explicit
 github.com/gin-gonic/gin
@@ -30,7 +34,7 @@ github.com/gin-gonic/gin/render
 # github.com/go-logr/logr v0.3.0
 ## explicit
 github.com/go-logr/logr
-# github.com/go-logr/zapr v0.2.0
+# github.com/go-logr/zapr v0.3.0
 ## explicit
 github.com/go-logr/zapr
 # github.com/go-playground/locales v0.13.0
@@ -121,7 +125,7 @@ github.com/xeipuuv/gojsonschema
 go.uber.org/atomic
 # go.uber.org/multierr v1.5.0
 go.uber.org/multierr
-# go.uber.org/zap v1.15.0
+# go.uber.org/zap v1.16.0
 ## explicit
 go.uber.org/zap
 go.uber.org/zap/buffer

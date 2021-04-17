@@ -96,6 +96,10 @@ func (r *Router) HandleWebSocket(session *melody.Session, data []byte) {
 	res, err := hdlr(req.Data)
 	if err != nil {
 		r.log.Error(err, "unable to handle request", "path", req.Path)
+		writer.Write(&Response{
+			Code: http.StatusInternalServerError,
+		})
+		return
 	}
 	writer.Write(res)
 }
@@ -126,6 +130,10 @@ func (r *Router) HandleHttpRequest(c *gin.Context) {
 	res, err := hdlr(req.Data)
 	if err != nil {
 		r.log.Error(err, "unable to handle request", "path", req.Path)
+		r.WriteHTTPResponse(c, &Response{
+			Code: http.StatusInternalServerError,
+		})
+		return
 	}
 	r.WriteHTTPResponse(c, res)
 }

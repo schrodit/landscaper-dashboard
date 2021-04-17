@@ -6,8 +6,9 @@ package config
 
 // Configuration defines the configuration for the dashboard server
 type Configuration struct {
-	HTTPPort  int `json:"httpPort"`
-	HTTPSPort int `json:"httpsPort"`
+	HTTPPort    int    `json:"httpPort"`
+	HTTPSPort   int    `json:"httpsPort"`
+	FrontendDir string `json:"frontendDir"`
 }
 
 // Default defaults the configuration values.

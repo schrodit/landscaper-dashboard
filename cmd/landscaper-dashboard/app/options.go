@@ -9,15 +9,17 @@ import (
 	"io/ioutil"
 
 	"github.com/go-logr/logr"
-	"github.com/schrodit/landscaper-dashboard/server/config"
-	"github.com/schrodit/landscaper-dashboard/server/logger"
 	"github.com/spf13/pflag"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/yaml"
+
+	"github.com/schrodit/landscaper-dashboard/server/config"
+	"github.com/schrodit/landscaper-dashboard/server/logger"
 )
 
 type Options struct {
-	ConfigPath string
+	ConfigPath  string
+	FrontendDir string
 
 	Log    logr.Logger
 	Config config.Configuration
@@ -28,6 +30,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 		fs = pflag.CommandLine
 	}
 	fs.StringVar(&o.ConfigPath, "config", "", "path to the configuration file")
+	fs.StringVar(&o.FrontendDir, "frontend", "frontend/build", "path to the frontend directory")
 	logger.InitFlags(fs)
 	fs.AddGoFlagSet(flag.CommandLine)
 }
@@ -52,5 +55,8 @@ func (o *Options) Complete() error {
 	}
 
 	config.Default(&o.Config)
+	if len(o.FrontendDir) != 0 {
+		o.Config.FrontendDir = o.FrontendDir
+	}
 	return nil
 }
