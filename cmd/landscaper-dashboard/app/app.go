@@ -10,21 +10,19 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gardener/landscaper/apis/core/install"
 	"github.com/gin-gonic/gin"
 	"github.com/mandelsoft/vfs/pkg/osfs"
+	"github.com/schrodit/landscaper-dashboard/server/routes"
+	"github.com/schrodit/landscaper-dashboard/server/routes/components"
+	"github.com/schrodit/landscaper-dashboard/server/routes/echo"
+	"github.com/schrodit/landscaper-dashboard/server/routes/frontend"
+	instData "github.com/schrodit/landscaper-dashboard/server/routes/listInstallationData"
+	lsRouter "github.com/schrodit/landscaper-dashboard/server/routes/listSecrets"
 	"github.com/spf13/cobra"
 	"gopkg.in/olahol/melody.v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-
-	"github.com/schrodit/landscaper-dashboard/server/routes/frontend"
-
-	"github.com/schrodit/landscaper-dashboard/server/routes"
-	"github.com/schrodit/landscaper-dashboard/server/routes/components"
-	"github.com/schrodit/landscaper-dashboard/server/routes/echo"
-	lsRouter "github.com/schrodit/landscaper-dashboard/server/routes/listSecrets"
-
-	"github.com/gardener/landscaper/apis/core/install"
 )
 
 func NewDashboardCmd(ctx context.Context) *cobra.Command {
@@ -86,6 +84,7 @@ func (o *Options) Run(ctx context.Context) error {
 	router.AddCommonPath("echo", echo.Route)
 	router.AddCommonPath("listSecrets", lsRouter.NewLsRouter(mgr.GetClient()).ListSecrets)
 	components.AddToRouter(o.Log, ociClient, router)
+	router.AddCommonPath("listInstallationData", instData.NewInstallationRouter(mgr.GetClient(), o.Log.WithName("listInstallationData")).ListInstallations)
 	go func() {
 		if err := mgr.Start(ctx); err != nil {
 			o.Log.Error(err, "unable to start controller manager")
