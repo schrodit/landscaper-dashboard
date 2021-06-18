@@ -13,6 +13,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/yaml"
 
+	ociopts "github.com/gardener/component-cli/ociclient/options"
+
 	"github.com/schrodit/landscaper-dashboard/server/config"
 	"github.com/schrodit/landscaper-dashboard/server/logger"
 )
@@ -23,6 +25,8 @@ type Options struct {
 
 	Log    logr.Logger
 	Config config.Configuration
+	// OciOptions contains all exposed options to configure the oci client.
+	OciOptions ociopts.Options
 }
 
 func (o *Options) AddFlags(fs *pflag.FlagSet) {
@@ -31,6 +35,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	}
 	fs.StringVar(&o.ConfigPath, "config", "", "path to the configuration file")
 	fs.StringVar(&o.FrontendDir, "frontend", "frontend/build", "path to the frontend directory")
+	o.OciOptions.AddFlags(fs)
 	logger.InitFlags(fs)
 	fs.AddGoFlagSet(flag.CommandLine)
 }

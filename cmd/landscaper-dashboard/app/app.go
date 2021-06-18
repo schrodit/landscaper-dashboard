@@ -10,12 +10,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/mandelsoft/vfs/pkg/osfs"
 	"github.com/spf13/cobra"
 	"gopkg.in/olahol/melody.v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+
+	"github.com/schrodit/landscaper-dashboard/server/routes/frontend"
 
 	"github.com/schrodit/landscaper-dashboard/server/routes"
 	"github.com/schrodit/landscaper-dashboard/server/routes/components"
@@ -52,6 +54,11 @@ func (o *Options) Run(ctx context.Context) error {
 	}
 	install.Install(mgr.GetScheme())
 
+	ociClient, _, err := o.OciOptions.Build(o.Log, osfs.New())
+	if err != nil {
+		return err
+	}
+
 	server := gin.Default()
 	httpServer := http.Server{
 		Addr:    fmt.Sprintf(":%d", o.Config.HTTPPort),
@@ -60,7 +67,10 @@ func (o *Options) Run(ctx context.Context) error {
 	m := melody.New() // websocket middleware
 
 	if len(o.Config.FrontendDir) != 0 {
-		server.Use(static.Serve("/", static.LocalFile(o.Config.FrontendDir, false)))
+		if err := frontend.AddToRouter(o.Config.FrontendDir, server); err != nil {
+			return err
+		}
+		o.Log.Info("successfully registered static frontend")
 	}
 
 	server.GET("/ws", func(c *gin.Context) {
@@ -75,7 +85,7 @@ func (o *Options) Run(ctx context.Context) error {
 	}
 	router.AddCommonPath("echo", echo.Route)
 	router.AddCommonPath("listSecrets", lsRouter.NewLsRouter(mgr.GetClient()).ListSecrets)
-	router.AddCommonPath("listComponents", components.ListComponents)
+	components.AddToRouter(o.Log, ociClient, router)
 	go func() {
 		if err := mgr.Start(ctx); err != nil {
 			o.Log.Error(err, "unable to start controller manager")

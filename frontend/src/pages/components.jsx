@@ -3,16 +3,13 @@ import Container from '@material-ui/core/Container';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Typography from '@material-ui/core/Typography';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as axios from 'axios';
 
 const styles = makeStyles((theme) => ({
@@ -26,6 +23,10 @@ const styles = makeStyles((theme) => ({
     selectEmpty: {
         marginTop: theme.spacing(2),
     },
+    heading: {
+        fontSize: theme.typography.pxToRem(15),
+        fontWeight: theme.typography.fontWeightRegular,
+    },
 }));
 
 class ComponentsPage extends Component {
@@ -35,8 +36,11 @@ class ComponentsPage extends Component {
         this.state = {
             repositoryContext: this.defaultRepositoryContexts[0],
             components: [
-                { name: 'my-component', version: '0.0.1' },
-            ]
+                'my-component',
+            ],
+            componentToVersion: {
+                'my-component': ["0.0.1"],
+            }
         }
     }
 
@@ -61,11 +65,47 @@ class ComponentsPage extends Component {
             repositoryContext: newValue,
             ...this.state
         })
-    };
+    }
+
+    handleComponentDetailsExpand = (componentName) => (event, expanded) => {
+        if (!expanded) {
+            return;
+        }
+        axios({
+            method: "post",
+            url: "http://localhost:8080/listComponentVersions",
+            data: {
+                repositoryContext: this.state.repositoryContext,
+                componentName: componentName
+            }
+        }).then((res) => {
+            console.log(res)
+            const state = {
+                ...this.state,
+            }
+            state.componentToVersion[componentName] = res.data.versions
+            this.setState(state)
+        })
+    }
+
+    getComponentDetails(componentName) {
+        if (!this.state.componentToVersion[componentName]) {
+            return "No data";
+        }
+        return (
+            <div>
+                {this.state.componentToVersion[componentName].map(version => {
+                    return <Typography variant="body1">
+                        {version}
+                    </Typography>
+                })}
+            </div>
+        )
+    }
 
     defaultRepositoryContexts = [
         "eu.gcr.io/gardener-project/development",
-    ];
+    ]
 
     render() {
         const { classes } = this.props;
@@ -77,7 +117,6 @@ class ComponentsPage extends Component {
                             {this.state.repositoryContext.split("/").map(value => {
                                 return <Typography color="textPrimary">{value}</Typography>
                             })}
-
                         </Breadcrumbs>
                     </Grid>
                     <Grid item>
@@ -92,26 +131,21 @@ class ComponentsPage extends Component {
                         />
                     </Grid>
                 </Grid>
-                <TableContainer component={Paper}>
-                    <Table className={classes.table} aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Name </TableCell>
-                                <TableCell align="right">Version</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.state.components.map((row) => (
-                                <TableRow key={row.name}>
-                                    <TableCell component="th" scope="row">
-                                        {row.name}
-                                    </TableCell>
-                                    <TableCell align="right">{row.version}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+
+                {this.state.components.map((row) => {
+                    return <Accordion onChange={this.handleComponentDetailsExpand(row)}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="comp-header-{row}"
+                            id="comp-header-{row}"
+                            >
+                            <Typography className={classes.heading}>{row}</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            {this.getComponentDetails(row)}
+                        </AccordionDetails>
+                    </Accordion>
+                })}
             </Container>
         )
     }
