@@ -16,6 +16,7 @@ import { BrowserRouter as Router, NavLink, Link as RouterLink, Switch, Route, Li
 
 import NotFoundPage from "./pages/404";
 import ComponentsPage from "./pages/components";
+import OverviewerPage from "./pages/overviewer";
 import HomePage from "./pages/home";
 
 const useStyles = makeStyles((theme) => ({
@@ -84,10 +85,15 @@ function App() {
                       <ListItemIcon><DescriptionIcon /></ListItemIcon>
                       <ListItemText primary="Components"></ListItemText>
                   </ListItem>
+                  <ListItem button key="Overviewer" onClick={doNav("/overviewer")}>
+                      <ListItemIcon><DescriptionIcon /></ListItemIcon>
+                      <ListItemText primary="Overviewer"></ListItemText>
+                  </ListItem>
               </List>
           </Drawer>
           <Switch>
                 <Route exact path="/components" component={ComponentsPage} />
+                <Route exact path="/overviewer" component={OverviewerPage} />
                 <Route exact path="/" component={HomePage} />
                 <Route exact component={NotFoundPage} />
           </Switch>
